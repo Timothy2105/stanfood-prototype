@@ -1,13 +1,15 @@
-import time
-import csv
-from datetime import datetime
-from pytz import timezone
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service 
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
+
+import json
+from datetime import datetime
+from pytz import timezone
+import time
+import csv
 from dining_info import *
 
 def find_dropdown(id_name):
@@ -39,7 +41,8 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--disable-extensions')
 
 # Set up WebDriver
-service = Service(ChromeDriverManager().install())
+chromedriver_path = '../chromedriver.exe'  # modify to match path of executable
+service = Service(executable_path=chromedriver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Open Stanford Dining Menu page
