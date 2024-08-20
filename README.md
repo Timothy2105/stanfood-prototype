@@ -1,2 +1,2 @@
-# stanford-dining-app
-Will we finally achieve good Stanford dining hall suggestions?
+# Stanfood Prototype
+A prototype for the existing Stanfood.live website application. 
