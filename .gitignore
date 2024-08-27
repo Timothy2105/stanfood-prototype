@@ -5,4 +5,7 @@ __pycache__/
 .env
 
 # Executables
-.exe
+*.exe
+
+# Saved Data
+/data/
