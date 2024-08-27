@@ -8,4 +8,4 @@ __pycache__/
 *.exe
 
 # Saved Data
-/data/
+/scraper/data/
