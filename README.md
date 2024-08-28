@@ -3,7 +3,7 @@ A prototype for the existing Stanfood.live website application. This project aim
 
 ## Contents
 
-### Scraper
+### Scraper Program
 - A program designed to extract data from the Stanford R&DE website. This data will be used to populate the app with relevant information.
   
 ### Stanfood App
