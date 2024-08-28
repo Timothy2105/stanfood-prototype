@@ -1,13 +1,11 @@
-import time
-import csv
-from datetime import datetime
-from pytz import timezone
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service 
-from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
+
+import json
+from datetime import datetime
+from pytz import timezone
 from dining_info import *
 
 def find_dropdown(id_name):
@@ -39,12 +37,16 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--disable-extensions')
 
 # Set up WebDriver
-service = Service(ChromeDriverManager().install())
+chromedriver_path = '../chromedriver.exe'  # modify to match path of executable
+service = Service(executable_path=chromedriver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Open Stanford Dining Menu page
 url = 'https://rdeapps.stanford.edu/dininghallmenu/'
 driver.get(url)
+
+# Cleanup old data
+cleanup_old_data()
 
 # Initialize page with dummy settings
 dummy_date = pst_now.strftime('%m/%d/%Y').lstrip("0").replace("/0", "/")
@@ -70,6 +72,9 @@ for date in dates_list:
             Select(find_dropdown('MealType')).select_by_value(meal)
             selected_meal_type = select_in_dropdown('MealType')
             print("Selected meal type:", selected_meal_type)
+
+            # Extract and save the menu information to CSV file
+            save_info(driver, selected_date, selected_dining_hall, selected_meal_type)
 
 # Wait for user input before closing the browser
 input("Press enter to close the browser...")
