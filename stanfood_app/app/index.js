@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoadingScreen from '../components/LoadingScreen'; 
-import HomeScreen from '../screens/HomeScreen';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import LoadingScreen from '../screens/LoadingScreen'
 
-const Stack = createStackNavigator();
+export default function App() {
+  const router = useRouter();
 
-const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const App = () => {
       // Simulate a loading delay; modify when real data is being fetched
       setTimeout(() => {
         setIsLoading(false);
-      }, 2000); 
+      }, 3000); 
     };
 
     loadData();
@@ -24,10 +24,23 @@ const App = () => {
       <LoadingScreen />
     )
   }
-
+  
   return (
-    <HomeScreen />
+    <View style={styles.container}>
+      <Text style={styles.text}>Welcome to the StanFood App!</Text>
+      <Button title="Go to Home" onPress={() => router.push('/home')} />
+    </View>
   );
-};
+}
 
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 24,
+    marginBottom: 16,
+  },
+});
