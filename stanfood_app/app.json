@@ -31,9 +31,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "expo-go": {
-      "showDevTools": false
     }
   }
 }

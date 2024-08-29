@@ -1,27 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import LoadingScreen from '../components/LoadingScreen'; 
+import HomeScreen from '../screens/HomeScreen';
+
+const Stack = createStackNavigator();
 
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      // Simulate a loading delay; modify when real data is being fetched
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000); 
+    };
+
+    loadData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <LoadingScreen />
+    )
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to the StanFood App!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <HomeScreen />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#bdd9a5',
-  },
-  text: {
-    fontSize: 20,
-    color: '#333',
-  },
-});
 
 export default App;
