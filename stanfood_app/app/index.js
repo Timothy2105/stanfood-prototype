@@ -28,7 +28,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to the StanFood App!</Text>
-      <Button title="Go to Home" onPress={() => router.push('/home')} />
+      <Button title="Go to Home" onPress={() => router.push('/menu')} />
     </View>
   );
 }

@@ -1,5 +1,7 @@
-import React from "react";
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useRef }from "react";
+import { View, Text, StyleSheet, ScrollView, Animated } from 'react-native';
+import LogoHeader from '../components/LogoHeader'; 
+import BottomNavBar from '../components/BottomNavBar'; 
 
 const LoginScreen = () => {
     const scrollY = useRef(new Animated.Value(0)).current;
