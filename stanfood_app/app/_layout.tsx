@@ -6,7 +6,7 @@ export default function RootLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: Platform.OS === 'ios' ? 'none' : 'fade', // Disable animations on iOS; use fade on Android
+        animation: 'none',
       }}
     >
       <Stack.Screen 
