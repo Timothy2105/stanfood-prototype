@@ -1,33 +1,18 @@
-import { Stack } from "expo-router";
-import { Platform } from "react-native";
+import { Stack } from 'expo-router';
+import CustomHeader from '@/components/CustomHeader';
 
-export default function RootLayout() {
+export const unstable_settings = {
+  initialRouteName: 'index',
+};
+
+export default function RootLayoutNav() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: 'none',
-      }}
-    >
-      <Stack.Screen 
+    <Stack>
+      <Stack.Screen
         name="index"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="home"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="menu"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="notifications"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="login"
-        options={{ headerShown: false }}
+        options={{
+          header: () => <CustomHeader />,
+        }}
       />
     </Stack>
   );
