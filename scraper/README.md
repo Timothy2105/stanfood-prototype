@@ -31,9 +31,14 @@ This is a web scraper for the Stanfood app prototype, designed to extract data f
      python3 scrape_menu.py
      ```
    - The scraper will execute and the data will be populated into its own directory within `scraper/src`.
+   - - Run the processing script using Python:
+     ```bash
+     python3 processing.py
+     ```
+   - The scraper will execute and the data will be populated into its own directory within `stanfood_app/assets/data`.
 
 5. **Access Your Data**
-   - The extracted data will be available in the `scraper/data` directory.
+   - The extracted data will be available in the `scraper/data` and `stanfood_app/assets/data` directories.
 
 ## Notes
 - Ensure that you have Python 3 installed on your system.
