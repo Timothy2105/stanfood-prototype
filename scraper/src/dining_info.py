@@ -43,6 +43,12 @@ def cleanup_old_data():
     pst_now = datetime.now(pst_timezone).date()
 
     data_directory = os.path.join('..', 'data')
+
+    # Ensure the 'data' directory exists
+    if not os.path.exists(data_directory):
+        print(f"Data directory not found. Creating directory: {data_directory}")
+        os.makedirs(data_directory)
+
     deleted_any = False  # Flag to check if any directories were deleted
 
     for date_folder in os.listdir(data_directory):

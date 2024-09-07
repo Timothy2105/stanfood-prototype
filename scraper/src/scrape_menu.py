@@ -37,7 +37,8 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--disable-extensions')
 
 # Set up WebDriver
-chromedriver_path = '../chromedriver.exe'  # modify to match path of executable
+# chromedriver_path = '../chromedriver.exe'  # path for Windows
+chromedriver_path = '../chromedriver'
 service = Service(executable_path=chromedriver_path)
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
