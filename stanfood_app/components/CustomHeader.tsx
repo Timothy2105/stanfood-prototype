@@ -1,15 +1,17 @@
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import LogoIcon from '@/assets/images/stanfoodicon.svg';
 import Colors from '@/constants/Colors';
 import { Link } from 'expo-router';
+import BottomSheet from './BottomSheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 const SearchBar = () => (
   <View style={styles.searchContainer}>
     <View style={styles.searchSection}>
       <View style={styles.searchField}>
-        <Ionicons style={styles.searchIcon} name="ios-search" size={20} color={Colors.medium} />
+        <Ionicons style={styles.searchIcon} name="search" size={20} color={Colors.medium} />
         <TextInput style={styles.input} placeholder="Dining halls, dishes, ingredients" />
       </View>
       <Link href={'/'} asChild>
@@ -22,18 +24,30 @@ const SearchBar = () => (
 );
 
 const CustomHeader = () => {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const openModal = () => {
+    bottomSheetRef.current?.present();
+  };
+
+  const [hungerState, setHungerState] = useState<'hungry' | 'full'>('hungry');
+  const handleToggle = (toggle: 'hungry' | 'full') => {
+    setHungerState(toggle);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <BottomSheet ref={bottomSheetRef} onToggle={handleToggle} />
+
       <View style={styles.container}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={openModal}>
           <LogoIcon />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.titleContainer}>
-          <Text style={styles.title}>Placeholder</Text>
+        <TouchableOpacity style={styles.titleContainer} onPress={openModal}>
+          <Text style={styles.title}>Online · {hungerState === 'hungry' ? 'Hungry' : 'Full'}</Text>
           <View style={styles.locationName}>
-            <Text style={styles.subtitle}>Selected location</Text>
-            <Ionicons name="chevron-down-outline" size={20} color={Colors.primary} />
+            <Text style={styles.subtitle}>Selected Location</Text>
+            <Ionicons name="chevron-down" size={20} color={Colors.primary} />
           </View>
         </TouchableOpacity>
 
@@ -99,6 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   input: {
+    flex: 1,
     padding: 10,
     color: Colors.mediumDark,
   },
