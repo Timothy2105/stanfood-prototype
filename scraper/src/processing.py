@@ -22,6 +22,8 @@ def title_case(text):
     def capitalize_word(word):
         if "/" in word:
             return "/".join(part.capitalize() for part in word.split("/"))
+        elif "-" in word:
+            return "-".join(part.capitalize() for part in word.split("-"))
         elif "'" in word:
             return "'".join(part.capitalize() for part in word.split("'"))
         else:
