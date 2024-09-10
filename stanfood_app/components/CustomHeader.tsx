@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import LogoIcon from '@/assets/images/stanfoodicon.svg';
+import LogoIcon from '@/assets/images/stanfoodicon';
 import Colors from '@/constants/Colors';
 import { Link } from 'expo-router';
 import BottomSheet from './BottomSheet';
@@ -14,7 +14,7 @@ const SearchBar = () => (
         <Ionicons style={styles.searchIcon} name="search" size={20} color={Colors.medium} />
         <TextInput style={styles.input} placeholder="Dining halls, dishes, ingredients" />
       </View>
-      <Link href={'/(modal)/filter'} asChild>
+      <Link href={'/(modal)/filter_hub'} asChild>
         <TouchableOpacity style={styles.optionButton}>
           <Ionicons name="options-outline" size={20} color={Colors.primary} />
         </TouchableOpacity>

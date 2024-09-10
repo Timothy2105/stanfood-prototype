@@ -32,9 +32,10 @@ def title_case(text):
     # Split the text into words, preserving spaces and special characters
     words = re.findall(r'\S+|\s+', text)
     
-    # Capitalize each word (account for parentheses)
+    # Capitalize each word (account for parentheses and quotation marks)
     result = []
     in_parentheses = False
+    after_quote = False
     for word in words:
         if '(' in word: 
             in_parentheses = True
@@ -42,8 +43,14 @@ def title_case(text):
         elif ')' in word:
             in_parentheses = False
             word = capitalize_word(word[:-1]) + ')'
-        elif in_parentheses or word.strip():
+        elif '"' in word or "'" in word:
+            # Capitalize the part after the quotation mark
+            parts = re.split(r'(["\'])', word)
+            word = ''.join(capitalize_word(part) if i % 2 == 0 or after_quote else part for i, part in enumerate(parts))
+            after_quote = word.endswith('"') or word.endswith("'")
+        elif in_parentheses or word.strip() or after_quote:
             word = capitalize_word(word)
+            after_quote = False
         result.append(word)
     
     return ''.join(result)
@@ -66,6 +73,34 @@ def split_joined_words(text):
     
     return text
 
+def replace_ingredient_words(ingredient):
+    replacements = {
+        "Mindful Chick'N" : "Chicken",
+        "Artificial Flavor" : "Artificial Flavors",
+        "Bell Pepper" : "Bell Peppers",
+        "Cumin Seed" : "Cumin Seeds",
+        "Flaxseed" : "Flax Seeds",
+        "Green Onion" : "Green Onions",
+        "Mustard Seed" : "Mustard Seeds",
+        "Natural Flavor" : "Natural Flavors",
+        "Natural Flavorings" : "Natural Flavors",
+        "Olive Canola Oil" : "Canola Olive Oil",
+        "Onion" : "Onions",
+        "Palm Fruit Oil" : "Palm Oil",
+        "Radishes" : "Radish",
+        "Red Pepper Flake" : "Red Pepper Flakes",
+        "Strawberry" : "Strawberries",
+        "Tomato" : "Tomatoes",
+        "Tortilla" : "Tortillas",
+        "Onions Powder" : "Onion Powder",
+        "Pineapple" : "Pineapples",
+    }
+    
+    for old, new in replacements.items():
+        ingredient = re.sub(r'\b' + re.escape(old) + r'\b', new, ingredient, flags=re.IGNORECASE)
+    
+    return ingredient
+
 def normalize_ingredient(ingredient):
     special_message = "Please refer to dining hall chef or manager for ingredient and allergen information"
     if ingredient.strip() == special_message:
@@ -80,6 +115,9 @@ def normalize_ingredient(ingredient):
     
     # Split incorrectly joined words
     ingredient = split_joined_words(ingredient)
+    
+    # Replace specific ingredient words
+    ingredient = replace_ingredient_words(ingredient)
     
     return title_case(ingredient)
 

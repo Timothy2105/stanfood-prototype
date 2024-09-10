@@ -12,6 +12,7 @@ export const unstable_settings = {
 
 export default function RootLayoutNav() {
   const navigation = useNavigation();
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
@@ -23,20 +24,96 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter"
+            name="(modal)/filter_hub"
             options={{
-              presentation: 'modal',
               headerTitle: 'Filter',
+              presentation: 'modal',
               headerShadowVisible: false,
               headerStyle: {
-                backgroundColor: Colors.lightGrey,
+                backgroundColor: Colors.ultraLightGrey,
               },
               headerLeft: () => (
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.goBack();
-                  }}
-                >
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/filter_dishes"
+            options={{
+              headerTitle: 'Dishes',
+              presentation: 'modal',
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/filter_ingredients"
+            options={{
+              headerTitle: 'Ingredients',
+              presentation: 'modal',
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/filter_allergens"
+            options={{
+              headerTitle: 'Allergens',
+              presentation: 'modal',
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/filter_meal_times"
+            options={{
+              headerTitle: 'Meal Time',
+              presentation: 'modal',
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/filter_locations"
+            options={{
+              headerTitle: 'Locations',
+              presentation: 'modal',
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="close-outline" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),

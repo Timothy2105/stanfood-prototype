@@ -18,6 +18,8 @@ export default {
   },
   primary: '#8C1515',
   lightGrey: '#FCF8FF',
+  mediumLightGrey: '#F5F0F8',
+  ultraLightGrey: '#FBFAFE',
   grey: '#EEE9F0',
   medium: '#9F9AA1',
   mediumDark: '#424242',

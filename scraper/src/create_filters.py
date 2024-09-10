@@ -1,6 +1,74 @@
 import json
 import os
 from collections import Counter
+import re
+
+# Configuration for name replacements
+NAME_REPLACEMENTS = {
+    "Allergy Friendly Bbq Sauce" : "BBQ Sauce",
+    "Allergy-Friendly Bbq Sauce" : "BBQ Sauce",
+    "Buttermilk Sauce" : "Buttermilk",
+    "Carrot Extractives" : "Carrot",
+    "Carrot" : "Carrot",
+    "Canola/Olive Oil Blend" : "Canola/Olive Oil",
+    "Canola Or Soybean Oil" : "Canola or Soybean Oil",
+    "Cheese Sauce" : "Cheese",
+    "Chipotle Aioli Sauce" : "Chipotle Aioli",
+    "Chipotle Pepper In Adobo Sauce" : "Adobo Sauce",
+    "Curry Powder" : "Curry",
+    "Curry Sauce" : "Curry",
+    "Cumin Seeds" : "Cumin",
+    "Dehydrated Garlic" : "Garlic",
+    "Dehydrated Mashed Potato Pearls" : "Mashed Potato",
+    "Expeller Pressed Canola Oil" : "Canola Oil",
+    "Breaded Okra Fried In Canola Oil" : "Breaded Okra",
+    "Garlic Powder" : "Garlic",
+    "Guajillo Chili Powder" : "Guajillo Chili",
+    "Lemon Juice" : "Lemon",
+    "Lime Juice" : "Lime",
+    "Liquid Sugar" : "Sugar",
+    "Onion Powder" : "Onion",
+    "Overnight Oats" : "Oats",
+    "Pesto Sauce" : "Pesto",
+    "Please refer to dining hall chef or manager for ingredient and allergen information" : "SPECIAL",
+    "Rosemary Extract" : "Rosemary",
+    "Seasonal Assortment Of Fresh Vegetables" : "Fresh Vegetables",
+    "Tomato Paste" : "Tomato",
+    "Turmeric Extractives" : "Turmeric",
+    "Yeast Extract" : "Yeast",
+}
+
+# Configuration for exclusions
+EXCLUSIONS = {
+    'ingredients': [
+        'Acetic Acid', 'Achiote Paste', 'Aluminum Sulfate', 'Amaranth', 
+        'Ammonium Sulfate', 'Amylase', 'Annatto Extract', 'Artificial Flavors', 
+        'Ascorbic Acid', 'Baking Powder', 'Bamboo Fiber', 'Bay Leaf', 'Black Pepper', 
+        'Blackstrap Molasses', 'Calcium Phosphate', 'Calcium Propionate', 
+        'Calcium Silicate', 'Calcium Sulfate', 'Cellulose From Bamboo', 'Citric Acid',
+        'Clove Spice', 'Condiments', 'Cultured Dextrose', 'Datem', 'Dextrose', 
+        'Diglycerides', 'Disodium Dihydrogen Pyrophosphate', 'Enzymes', 
+        'Evaporated Cane Juice', 'Fajita Seasoning', 'Furikake Seasoning',
+        'Garnish', 'Gellan Gum', 'Guar Gum', 'Guar Gum Rice Bran Extract', 'Gum Arabic',
+        'Herbs', 'Herbs De Provence', 'High Oleic Safflower Oil', 'L-Cysteine',
+        'Leavings', 'Malt Powder', 'Maltodextrin', 'Methylcellulose',
+        'Microcrystalline Cellulose', 'Mono-Diglycerides', 'Monocalcium Phosphate',
+        'Monoglycerides', 'Natural Flavors', 'Nisin', 'Pea Protein Isolate', 'Saffron',
+        'Sage Extract', 'Sage Oil', 'Salt', 'Sea Salt', 'Semolina', 'Sheep Casing', 
+        'Sodium Acid Pyrophosphate', 'Sodium Aluminum Phosphate', 'Sodium Bicarbonate',
+        'Sodium Erythorbate', 'Sodium Nitrite', 'Sodium Phosphate', 'Sodium Silicoaluminate',
+        'Sodium Stearoyl Lactylate', 'Sorbitan Monostearate', 'Spice Rub', 'Spices', 
+        'Stir-Fry Sauce', 'Succinic Acid', 'Sugar', 'Sumac Powder', 'Sweet & Spicy Sauce',
+        'Swiss Chard', 'Szechuan Sauce', 'Tamari Sauce', 'Tetrasodium Pyrophosphate',
+        'Transglutaminase', 'Vegetable Glycerine', 'White Sauce', 'Xanthan Gum',
+        'Chinese 5-Spice Powder', 'Potassium Citrate',
+        ],
+    'allergens': [],
+    'dishes': [],
+    'locations': [],
+    'meal_times': [],
+    'dates': []
+}
 
 def get_data_directory():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +86,14 @@ def save_filter_json(data, filename):
     with open(output_path, 'w') as file:
         json.dump(data, file, indent=2)
 
+def clean_and_replace_name(name):
+    # Remove everything after the first opening parenthesis or bracket
+    cleaned = re.split(r'[\(\[]', name)[0]
+    # Remove leading/trailing whitespace and commas
+    cleaned = cleaned.strip().strip(',')
+    # Apply replacements
+    return NAME_REPLACEMENTS.get(cleaned, cleaned)
+
 def create_filter_files(dishes):
     allergens = Counter()
     dates = Counter()
@@ -26,25 +102,47 @@ def create_filter_files(dishes):
     locations = Counter()
     meal_times = Counter()
 
-    # Initialize values with 0
+    unique_locations = set()
+    unique_meal_times = set()
+    
+    # Count occurrences
     for dish in dishes:
-        allergens.update({allergen: 0 for allergen in dish['allergens']})
-        dates[dish['date']] = 0
-        locations[dish['location']] = 0
-        meal_times[dish['meal_time']] = 0
-        if dish['name']:
-            dish_names[dish['name']] = 0
-        ingredients.update({ingredient: 0 for ingredient in dish['ingredients']})
-
-    # Count dishes
-    for dish in dishes:
-        if dish['name']:
+        if dish['name']:  # Only process the dish if it has a non-empty name
+            clean_name = clean_and_replace_name(dish['name'])
+            dish_names[clean_name] += 1
+            
             allergens.update(dish['allergens'])
-            dates[dish['date']] += 1
-            dish_names[dish['name']] += 1
-            ingredients.update(dish['ingredients'])
-            locations[dish['location']] += 1
-            meal_times[dish['meal_time']] += 1
+            
+            if dish['date']:
+                dates[dish['date']] += 1
+            
+            for ing in dish['ingredients']:
+                clean_ing = clean_and_replace_name(ing)
+                if clean_ing:
+                    ingredients[clean_ing] += 1
+            
+            if dish['location']:
+                locations[dish['location']] += 1
+                unique_locations.add(dish['location'])
+            
+            if dish['meal_time']:
+                meal_times[dish['meal_time']] += 1
+                unique_meal_times.add(dish['meal_time'])
+        else:
+            if dish['location']:
+                unique_locations.add(dish['location'])
+            if dish['meal_time']:
+                unique_meal_times.add(dish['meal_time'])
+
+
+    # Include all locations and meal types with 0 if no data
+    for location in unique_locations:
+        if location not in locations:
+            locations[location] = 0
+    
+    for meal_time in unique_meal_times:
+        if meal_time not in meal_times:
+            meal_times[meal_time] = 0
 
     filters = {
         'allergens': allergens,
@@ -57,8 +155,9 @@ def create_filter_files(dishes):
 
     for filter_name, counter in filters.items():
         filter_data = [
-            {"filter": item, "count": count}
-            for item, count in sorted(counter.items()) if item
+            {"name": item, "count": count}
+            for item, count in sorted(counter.items())
+            if item and item not in EXCLUSIONS.get(filter_name, [])
         ]
         save_filter_json(filter_data, f'{filter_name}_filter.json')
 
