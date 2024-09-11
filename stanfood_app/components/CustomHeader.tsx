@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 8,
-    marginRight: 15,
+    marginRight: 10,
     paddingVertical: 2,
   },
   logoAndTextWrapper: {
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     backgroundColor: Colors.lightGrey,
+    marginRight: 5,
     padding: 10,
     borderRadius: 50,
   },
