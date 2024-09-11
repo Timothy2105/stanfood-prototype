@@ -1,11 +1,10 @@
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 import LogoIcon from '@/assets/images/stanfoodicon';
 import Colors from '@/constants/Colors';
-import { Link } from 'expo-router';
-import BottomSheet from './BottomSheet';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetRef } from './BottomSheet';
 
 const SearchBar = () => (
   <View style={styles.searchContainer}>
@@ -24,33 +23,60 @@ const SearchBar = () => (
 );
 
 const CustomHeader = () => {
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const openModal = () => {
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
+  const [isPressed, setIsPressed] = useState(false);
+  const [hungerState, setHungerState] = useState<'hungry' | 'full'>('hungry');
+  const [status, setStatus] = useState('Online');
+
+  const openModal = useCallback(() => {
     bottomSheetRef.current?.present();
+  }, []);
+
+  const handleToggle = useCallback((toggle: 'hungry' | 'full') => {
+    setHungerState(toggle);
+  }, []);
+
+  const handleStatusChange = useCallback((newStatus: string) => {
+    setStatus(newStatus);
+  }, []);
+
+  const handlePressIn = () => setIsPressed(true);
+  const handlePressOut = () => {
+    setIsPressed(false);
+    openModal();
   };
 
-  const [hungerState, setHungerState] = useState<'hungry' | 'full'>('hungry');
-  const handleToggle = (toggle: 'hungry' | 'full') => {
-    setHungerState(toggle);
+  const displayStatus = (status: string) => {
+    return status === 'Appear Offline' ? 'Offline' : status;
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <BottomSheet ref={bottomSheetRef} onToggle={handleToggle} />
-
-      <View style={styles.container}>
-        <TouchableOpacity onPress={openModal}>
-          <LogoIcon />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.titleContainer} onPress={openModal}>
-          <Text style={styles.title}>Online · {hungerState === 'hungry' ? 'Hungry' : 'Full'}</Text>
-          <View style={styles.locationName}>
-            <Text style={styles.subtitle}>Selected Location</Text>
-            <Ionicons name="chevron-down" size={20} color={Colors.primary} />
+      <BottomSheet
+        ref={bottomSheetRef}
+        onToggle={handleToggle}
+        onStatusChange={handleStatusChange}
+        initialStatus={status}
+      />
+      <View style={styles.outerContainer}>
+        <Pressable
+          style={[styles.logoAndTitleContainer, isPressed && styles.logoAndTitleContainerPressed]}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+        >
+          <View style={styles.logoAndTextWrapper}>
+            <LogoIcon />
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>
+                {displayStatus(status)} · {hungerState === 'hungry' ? 'Hungry' : 'Full'}
+              </Text>
+              <View style={styles.locationName}>
+                <Text style={styles.subtitle}>Selected Location</Text>
+                <Ionicons name="chevron-down" size={20} color={Colors.primary} />
+              </View>
+            </View>
           </View>
-        </TouchableOpacity>
-
+        </Pressable>
         <TouchableOpacity style={styles.profileButton}>
           <Ionicons name="person-outline" size={20} color={Colors.primary} />
         </TouchableOpacity>
@@ -65,17 +91,34 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  container: {
+  outerContainer: {
     height: 60,
     backgroundColor: '#fff',
     flexDirection: 'row',
-    gap: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
+  },
+  logoAndTitleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginRight: 15,
+    paddingVertical: 2,
+  },
+  logoAndTextWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 5,
+    gap: 20,
+  },
+  logoAndTitleContainerPressed: {
+    backgroundColor: Colors.grey,
   },
   titleContainer: {
-    flex: 1,
+    marginLeft: -5,
   },
   title: {
     fontSize: 14,

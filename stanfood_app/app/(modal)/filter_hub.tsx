@@ -86,7 +86,7 @@ const ItemBox = () => (
   </View>
 );
 
-const Filter = () => {
+const FilterHub = () => {
   const navigation = useNavigation();
   const [sections, setSections] = useState<Section[]>([]);
   const flexWidth = useSharedValue(0);
@@ -208,7 +208,7 @@ const Filter = () => {
     };
 
     return (
-      <TouchableOpacity onPress={handleRemoveItem} style={styles.deleteButton}>
+      <TouchableOpacity onPress={handleRemoveItem}>
         <Animated.View style={[styles.itemRow, animatedStyles]} layout={LinearTransition}>
           <Animated.Text style={[styles.itemText, animatedTextStyles]}>{item.name}</Animated.Text>
           <Ionicons name="close-outline" size={24} color={Colors.primary} />
@@ -250,7 +250,7 @@ const Filter = () => {
               navigation.goBack();
             }}
           >
-            <Text style={styles.footerText}>Done</Text>
+            <Text style={styles.fullButtonText}>Done</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -286,10 +286,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 8,
     height: 56,
   },
-  footerText: {
+  fullButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     backgroundColor: Colors.ultraLightGrey,
+    paddingLeft: 0,
     padding: 8,
     marginTop: 8,
   },
@@ -326,10 +328,8 @@ const styles = StyleSheet.create({
   },
   itemText: {
     flex: 1,
-    fontWeight: '400',
-    fontFamily: 'Helvetica',
+    fontWeight: '300',
   },
-  deleteButton: {},
   itemSeparator: {
     height: 5, // Space between rows
   },
@@ -382,8 +382,7 @@ const styles = StyleSheet.create({
   subFilterText: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '400',
-    fontFamily: 'Helvetica',
+    fontWeight: '300',
   },
   noFiltersText: {
     fontSize: 16,
@@ -393,4 +392,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Filter;
+export default FilterHub;

@@ -23,5 +23,8 @@ export default {
   grey: '#EEE9F0',
   medium: '#9F9AA1',
   mediumDark: '#424242',
-  green: '#437919',
+  green: '#3BA55C',
+  orange: '#FAA61A',
+  red: '#ED4245',
+  offlineGrey: '#747F8D',
 };

@@ -1,72 +1,218 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
-import { BottomSheetBackdrop, BottomSheetModal, useBottomSheetModal } from '@gorhom/bottom-sheet';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Colors from '@/constants/Colors';
+import React, { forwardRef, useCallback, useMemo, useState, useRef, useImperativeHandle } from 'react';
+import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
+import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
+import StatusModal from '@/components/StatusModal';
 
-export type Ref = BottomSheetModal;
+export interface BottomSheetRef {
+  present: () => void;
+  dismiss: () => void;
+}
 
-const BottomSheet = forwardRef<Ref, { onToggle: (toggle: 'hungry' | 'full') => void }>(({ onToggle }, ref) => {
+interface BottomSheetProps {
+  onToggle: (toggle: 'hungry' | 'full') => void;
+  onStatusChange: (status: string) => void;
+  initialStatus: string;
+}
+
+const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ onToggle, onStatusChange, initialStatus }, ref) => {
   const snapPoints = useMemo(() => ['50%'], []);
-  const renderBackdrop = useCallback((props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
-
-  const { dismiss } = useBottomSheetModal();
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [activeToggle, setActiveToggle] = useState<'hungry' | 'full'>('hungry');
-  const handleToggle = (toggle: 'hungry' | 'full') => {
-    setActiveToggle(toggle); // Set local state
-    onToggle(toggle); // Update parent of state change
+  const [showStatus, setShowStatus] = useState(false);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const [currentStatus, setCurrentStatus] = useState(initialStatus);
+
+  const renderBackdrop = useCallback(
+    (props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />,
+    []
+  );
+
+  const resetState = useCallback(() => {
+    setShowStatus(false);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 0,
+      useNativeDriver: true,
+    }).start();
+  }, [slideAnim]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      present: () => {
+        resetState();
+        bottomSheetRef.current?.present();
+      },
+      dismiss: () => {
+        bottomSheetRef.current?.dismiss();
+      },
+    }),
+    [resetState]
+  );
+
+  const handleDismiss = useCallback(() => {
+    resetState();
+  }, [resetState]);
+
+  const handleToggle = useCallback(
+    (toggle: 'hungry' | 'full') => {
+      setActiveToggle(toggle);
+      onToggle(toggle);
+    },
+    [onToggle]
+  );
+
+  const showStatusModal = useCallback(() => {
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowStatus(true);
+    });
+  }, [slideAnim]);
+
+  const hideStatusModal = useCallback(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowStatus(false);
+    });
+  }, [slideAnim]);
+
+  const handleCustomStatus = useCallback(() => {
+    // Custom status change functionality to be implemented
+    console.log('Custom status set');
+  }, []);
+
+  const handleSaveStatus = useCallback(
+    (status: string) => {
+      setCurrentStatus(status);
+      onStatusChange(status);
+    },
+    [onStatusChange]
+  );
+
+  const mainContentTranslate = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -400],
+  });
+
+  const statusTranslate = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [400, 0],
+  });
+
+  const getStatusDotColor = (status: string) => {
+    switch (status) {
+      case 'Online':
+        return Colors.green;
+      case 'Do Not Disturb':
+        return Colors.red;
+      case 'Appear Offline':
+        return Colors.offlineGrey;
+      default:
+        return Colors.primary;
+    }
   };
 
   return (
     <BottomSheetModal
-      handleIndicatorStyle={{ display: 'none' }}
-      backgroundStyle={{ borderRadius: 0, backgroundColor: Colors.lightGrey }}
-      overDragResistanceFactor={0}
-      ref={ref}
+      ref={bottomSheetRef}
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
+      handleIndicatorStyle={{ backgroundColor: Colors.primary }}
+      backgroundStyle={{ borderRadius: 26, backgroundColor: Colors.lightGrey }}
+      onDismiss={handleDismiss}
     >
       <View style={styles.contentContainer}>
-        <View style={styles.toggleSection}>
-          <TouchableOpacity
-            style={[styles.toggleButton, activeToggle === 'hungry' ? styles.toggleActive : styles.toggleInactive]}
-            onPress={() => handleToggle('hungry')}
-          >
-            <Text style={activeToggle === 'hungry' ? styles.activeText : styles.inactiveText}>Hungry</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleButton, activeToggle === 'full' ? styles.toggleActive : styles.toggleInactive]}
-            onPress={() => handleToggle('full')}
-          >
-            <Text style={activeToggle === 'full' ? styles.activeText : styles.inactiveText}>Full</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.subheader}>Your Location</Text>
-        <Link href={'/'} asChild>
-          <TouchableOpacity>
-            <View style={styles.item}>
-              <Ionicons name="location-outline" size={22} color={Colors.primary} />
-              <Text style={styles.itemText}>Current Location</Text>
-              <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
-            </View>
-          </TouchableOpacity>
-        </Link>
-
-        <Text style={styles.subheader}>Appearance</Text>
-        <TouchableOpacity>
-          <View style={styles.item}>
-            <Ionicons name="notifications-outline" size={22} color={Colors.primary} />
-            <Text style={styles.itemText}>Online</Text>
-            <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
+        <Animated.View
+          style={[
+            styles.mainContent,
+            {
+              transform: [{ translateX: mainContentTranslate }],
+            },
+          ]}
+        >
+          <View style={styles.toggleSection}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.toggleButton,
+                activeToggle === 'hungry' ? styles.toggleActive : styles.toggleInactive,
+                pressed && styles.togglePressed,
+              ]}
+              onPress={() => handleToggle('hungry')}
+            >
+              <Text style={activeToggle === 'hungry' ? styles.activeText : styles.inactiveText}>Hungry</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.toggleButton,
+                activeToggle === 'full' ? styles.toggleActive : styles.toggleInactive,
+                pressed && styles.togglePressed,
+              ]}
+              onPress={() => handleToggle('full')}
+            >
+              <Text style={activeToggle === 'full' ? styles.activeText : styles.inactiveText}>Full</Text>
+            </Pressable>
           </View>
-        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => dismiss()}>
-          <Text style={styles.buttonText}>Done</Text>
-        </TouchableOpacity>
+          <View style={styles.subheaderSection}>
+            <Text style={styles.subheader}>Your Location</Text>
+            <Link href={'/'} asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <View style={[styles.item, pressed && styles.itemPressed]}>
+                    <Ionicons name="location-outline" size={22} color={Colors.primary} />
+                    <Text style={styles.itemText}>Current Location</Text>
+                    <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
+                  </View>
+                )}
+              </Pressable>
+            </Link>
+          </View>
+
+          <View style={styles.subheaderSection}>
+            <Text style={styles.subheader}>Set Online Status</Text>
+            <Pressable style={({ pressed }) => [styles.item, pressed && styles.itemPressed]} onPress={showStatusModal}>
+              {({ pressed }) => (
+                <>
+                  <View style={[styles.statusDot, { backgroundColor: getStatusDotColor(currentStatus) }]} />
+                  <Text style={styles.itemText}>{currentStatus}</Text>
+                  <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
+                </>
+              )}
+            </Pressable>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+            onPress={() => bottomSheetRef.current?.dismiss()}
+          >
+            <Text style={styles.buttonText}>Done</Text>
+          </Pressable>
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.statusContainer,
+            {
+              transform: [{ translateX: statusTranslate }],
+            },
+          ]}
+        >
+          <StatusModal
+            goBack={hideStatusModal}
+            onSaveStatus={handleSaveStatus}
+            initialStatus={currentStatus}
+            onCustomStatus={handleCustomStatus}
+          />
+        </Animated.View>
       </View>
     </BottomSheetModal>
   );
@@ -75,12 +221,27 @@ const BottomSheet = forwardRef<Ref, { onToggle: (toggle: 'hungry' | 'full') => v
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
+    overflow: 'hidden',
+  },
+  mainContent: {
+    flex: 1,
+  },
+  statusContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: Colors.lightGrey,
+  },
+  statusDot: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    marginRight: 8,
   },
   toggleSection: {
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingTop: 15,
     gap: 10,
-    marginBottom: 32,
+    marginBottom: 16,
   },
   toggleButton: {
     padding: 6,
@@ -93,6 +254,9 @@ const styles = StyleSheet.create({
   toggleInactive: {
     borderColor: Colors.primary,
   },
+  togglePressed: {
+    opacity: 0.8,
+  },
   activeText: {
     color: '#fff',
     fontWeight: '700',
@@ -104,13 +268,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     padding: 16,
     marginTop: 24,
-    margin: 16,
-    borderRadius: 4,
+    margin: 24,
+    borderRadius: 16,
     alignItems: 'center',
+  },
+  buttonPressed: {
+    opacity: 0.8,
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  subheaderSection: {
+    paddingBottom: 10,
   },
   subheader: {
     fontSize: 16,
@@ -126,6 +297,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.grey,
     borderBottomWidth: 1,
     borderTopWidth: 1,
+  },
+  itemPressed: {
+    backgroundColor: Colors.grey,
   },
   itemText: {
     flex: 1,
