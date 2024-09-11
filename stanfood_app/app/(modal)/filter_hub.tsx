@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, SectionList, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
@@ -86,6 +86,39 @@ const ItemBox = () => (
   </View>
 );
 
+const FilterItem = React.memo(({ item, onRemove }: { item: Category; onRemove: (item: Category) => void }) => {
+  const itemWidth = useSharedValue('100%');
+  const itemOpacity = useSharedValue(1);
+  const textSize = useSharedValue(14);
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    width: itemWidth.value,
+    opacity: itemOpacity.value,
+  }));
+
+  const animatedTextStyles = useAnimatedStyle(() => ({
+    fontSize: textSize.value,
+  }));
+
+  const handleRemoveItem = useCallback(() => {
+    itemWidth.value = withTiming('0%', { duration: 300 }, () => {
+      itemOpacity.value = withTiming(0, { duration: 150 }, () => {
+        runOnJS(onRemove)(item);
+      });
+    });
+    textSize.value = withTiming(0, { duration: 300 });
+  }, [item, onRemove]);
+
+  return (
+    <TouchableOpacity onPress={handleRemoveItem}>
+      <Animated.View style={[styles.itemRow, animatedStyles]} layout={LinearTransition}>
+        <Animated.Text style={[styles.itemText, animatedTextStyles]}>{item.name}</Animated.Text>
+        <Ionicons name="close-outline" size={24} color={Colors.primary} />
+      </Animated.View>
+    </TouchableOpacity>
+  );
+});
+
 const FilterHub = () => {
   const navigation = useNavigation();
   const [sections, setSections] = useState<Section[]>([]);
@@ -146,23 +179,27 @@ const FilterHub = () => {
     }
   }, []);
 
-  const removeItem = useCallback(
-    async (item: Category) => {
-      try {
-        const storageKey = STORAGE_KEYS[item.type as keyof typeof STORAGE_KEYS];
-        const savedState = await AsyncStorage.getItem(storageKey);
-        if (savedState) {
-          const parsedState = JSON.parse(savedState);
-          parsedState[item.name] = false;
-          await AsyncStorage.setItem(storageKey, JSON.stringify(parsedState));
-          loadActiveSections(); // Reload the sections after removing the item
-        }
-      } catch (error) {
-        console.error('Error removing item:', error);
+  const removeItem = useCallback(async (item: Category) => {
+    try {
+      const storageKey = STORAGE_KEYS[item.type as keyof typeof STORAGE_KEYS];
+      const savedState = await AsyncStorage.getItem(storageKey);
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        parsedState[item.name] = false;
+        await AsyncStorage.setItem(storageKey, JSON.stringify(parsedState));
+        setSections((prevSections) =>
+          prevSections
+            .map((section) => ({
+              ...section,
+              data: section.data.filter((i) => i.name !== item.name),
+            }))
+            .filter((section) => section.data.length > 0)
+        );
       }
-    },
-    [loadActiveSections]
-  );
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
+  }, []);
 
   const animatedButton = useAnimatedStyle(() => ({
     width: flexWidth.value,
@@ -180,60 +217,56 @@ const FilterHub = () => {
     transform: [{ scale: scale.value }],
   }));
 
-  const renderSectionHeader = ({ section: { title } }: { section: Section }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
+  const renderSectionHeader = useCallback(
+    ({ section: { title } }: { section: Section }) => <Text style={styles.sectionHeader}>{title}</Text>,
+    []
   );
 
-  const renderItem = ({ item }: { item: Category }) => {
-    const itemWidth = useSharedValue('100%');
-    const itemOpacity = useSharedValue(1);
-    const textSize = useSharedValue(14);
+  const renderItem = useCallback(
+    ({ item }: { item: Category }) => <FilterItem item={item} onRemove={removeItem} />,
+    [removeItem]
+  );
 
-    const animatedStyles = useAnimatedStyle(() => ({
-      width: itemWidth.value,
-      opacity: itemOpacity.value,
-    }));
+  const keyExtractor = useCallback((item: Category, index: number) => item.type + item.name + index, []);
 
-    const animatedTextStyles = useAnimatedStyle(() => ({
-      fontSize: textSize.value,
-    }));
+  const ListHeaderComponent = useMemo(
+    () => (
+      <>
+        <ItemBox />
+        {sections.length > 0 && <Text style={styles.activeFiltersHeader}>Active Filters</Text>}
+      </>
+    ),
+    [sections.length]
+  );
 
-    const handleRemoveItem = () => {
-      itemWidth.value = withTiming('0%', { duration: 300 }, () => {
-        itemOpacity.value = withTiming(0, { duration: 150 }, () => {
-          runOnJS(removeItem)(item);
-        });
-      });
-      textSize.value = withTiming(0, { duration: 300 });
-    };
-
-    return (
-      <TouchableOpacity onPress={handleRemoveItem}>
-        <Animated.View style={[styles.itemRow, animatedStyles]} layout={LinearTransition}>
-          <Animated.Text style={[styles.itemText, animatedTextStyles]}>{item.name}</Animated.Text>
-          <Ionicons name="close-outline" size={24} color={Colors.primary} />
-        </Animated.View>
-      </TouchableOpacity>
-    );
-  };
+  const ListEmptyComponent = useMemo(() => <Text style={styles.noFiltersText}>No active filters</Text>, []);
 
   return (
     <View style={styles.container}>
       <SectionList
         sections={sections}
-        keyExtractor={(item, index) => item.type + item.name + index}
+        keyExtractor={keyExtractor}
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
-        ListHeaderComponent={
-          <>
-            <ItemBox />
-            {sections.length > 0 && <Text style={styles.activeFiltersHeader}>Active Filters</Text>}
-          </>
-        }
-        ListEmptyComponent={<Text style={styles.noFiltersText}>No active filters</Text>}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={ListEmptyComponent}
         stickySectionHeadersEnabled={false}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
-        SectionSeparatorComponent={() => <View style={styles.sectionSeparator} />}
+        ItemSeparatorComponent={useCallback(
+          () => (
+            <View style={styles.itemSeparator} />
+          ),
+          []
+        )}
+        SectionSeparatorComponent={useCallback(
+          () => (
+            <View style={styles.sectionSeparator} />
+          ),
+          []
+        )}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        windowSize={21}
       />
       <View style={{ height: 76 }} />
       <View style={styles.footer}>

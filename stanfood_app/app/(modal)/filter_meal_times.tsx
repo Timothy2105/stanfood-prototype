@@ -1,22 +1,13 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ListRenderItem,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-  Button,
-  Pressable,
-} from 'react-native';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ListRenderItem, TouchableOpacity, FlatList, TextInput, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useCallback, useEffect, useState } from 'react';
-import Colors from '@/constants/Colors';
-import { Link, useNavigation } from 'expo-router';
-import categories from '@/assets/data/meal_times_filter.json';
+import { useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+
+import Colors from '@/constants/Colors';
+import categories from '@/assets/data/meal_times_filter.json';
 
 interface Category {
   name: string;
@@ -27,17 +18,13 @@ interface Category {
 const STORAGE_KEY = '@meal_times_filter_state';
 
 const normalizeString = (str: string) => {
-  return (
-    str
-      .toLowerCase()
-      // Replace quotes with straight quotes for matching
-      .replace(/[\u2018\u2019\u201C\u201D]/g, '"')
-      // Remove quotes, spaces, and dashes
-      .replace(/[-\s"']/g, '')
-  );
+  return str
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201C\u201D]/g, '"')
+    .replace(/[-\s"']/g, '');
 };
 
-const SearchBar = ({ value, onChangeText }: { value: string; onChangeText: (text: string) => void }) => (
+const SearchBar = React.memo(({ value, onChangeText }: { value: string; onChangeText: (text: string) => void }) => (
   <View style={styles.searchContainer}>
     <View style={styles.searchSection}>
       <View style={styles.searchField}>
@@ -56,9 +43,37 @@ const SearchBar = ({ value, onChangeText }: { value: string; onChangeText: (text
       </View>
     </View>
   </View>
-);
+));
 
-// const ItemBox = () => <Text style={styles.header}>Categories</Text>;
+const CategoryItem = React.memo(
+  ({ item, onToggle }: { item: Category; onToggle: (name: string) => void }) => (
+    <Pressable
+      style={({ pressed }) => [
+        styles.itemRow,
+        {
+          backgroundColor: pressed ? Colors.mediumLightGrey : '#fff',
+        },
+      ]}
+      onPress={() => onToggle(item.name)}
+    >
+      <Text style={styles.itemText}>
+        {item.name} <Text style={styles.itemTextDetail}>({item.count})</Text>
+      </Text>
+      <View>
+        <BouncyCheckbox
+          isChecked={item.checked}
+          fillColor={Colors.primary}
+          unFillColor="#fff"
+          useNativeDriver={true}
+          iconStyle={{ borderColor: Colors.primary, borderRadius: 4, borderWidth: 2 }}
+          innerIconStyle={{ borderColor: Colors.primary, borderRadius: 4 }}
+          onPress={() => onToggle(item.name)}
+        />
+      </View>
+    </Pressable>
+  ),
+  (prevProps, nextProps) => prevProps.item.checked === nextProps.item.checked
+);
 
 const MealTimesFilter = () => {
   const navigation = useNavigation();
@@ -104,9 +119,12 @@ const MealTimesFilter = () => {
     }
   }, []);
 
-  const filteredItems = items.filter((item) => normalizeString(item.name).includes(normalizeString(searchQuery)));
+  const filteredItems = useMemo(
+    () => items.filter((item) => normalizeString(item.name).includes(normalizeString(searchQuery))),
+    [items, searchQuery]
+  );
 
-  const selectedItems = items.filter((item) => item.checked);
+  const selectedItems = useMemo(() => items.filter((item) => item.checked), [items]);
 
   useEffect(() => {
     const hasSelected = selectedItems.length > 0;
@@ -114,22 +132,17 @@ const MealTimesFilter = () => {
     flexWidth.value = withTiming(hasSelected ? 150 : 0, animationConfig);
     scale.value = withTiming(hasSelected ? 1 : 0, animationConfig);
     gap.value = withTiming(hasSelected ? 12 : 0, animationConfig);
-  }, [selectedItems]);
+  }, [selectedItems, flexWidth, scale, gap]);
 
   const handleClearAll = useCallback(() => {
-    const newItems = items.map((item) => ({ ...item, checked: false }));
-    setItems(newItems);
-    saveItems(newItems);
-  }, [items, saveItems]);
+    setItems((prevItems) => prevItems.map((item) => ({ ...item, checked: false })));
+  }, []);
 
-  const toggleItemCheck = useCallback(
-    (itemName: string) => {
-      const newItems = items.map((item) => (item.name === itemName ? { ...item, checked: !item.checked } : item));
-      setItems(newItems);
-      saveItems(newItems);
-    },
-    [items, saveItems]
-  );
+  const toggleItemCheck = useCallback((itemName: string) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => (item.name === itemName ? { ...item, checked: !item.checked } : item))
+    );
+  }, []);
 
   const animatedButton = useAnimatedStyle(() => ({
     width: flexWidth.value,
@@ -147,38 +160,24 @@ const MealTimesFilter = () => {
     transform: [{ scale: scale.value }],
   }));
 
-  const renderItem: ListRenderItem<Category> = ({ item }) => (
-    <Pressable
-      style={({ pressed }) => [
-        styles.itemRow,
-        {
-          backgroundColor: pressed ? Colors.mediumLightGrey : '#fff',
-        },
-      ]}
-      onPress={() => toggleItemCheck(item.name)}
-    >
-      <Text style={styles.itemText}>
-        {item.name} <Text style={styles.itemTextDetail}>({item.count})</Text>
-      </Text>
-      <View>
-        <BouncyCheckbox
-          isChecked={item.checked}
-          fillColor={Colors.primary}
-          unFillColor="#fff"
-          useBuiltInState={false}
-          iconStyle={{ borderColor: Colors.primary, borderRadius: 4, borderWidth: 2 }}
-          innerIconStyle={{ borderColor: Colors.primary, borderRadius: 4 }}
-          onPress={() => toggleItemCheck(item.name)}
-        />
-      </View>
-    </Pressable>
+  const renderItem: ListRenderItem<Category> = useCallback(
+    ({ item }) => <CategoryItem item={item} onToggle={toggleItemCheck} />,
+    [toggleItemCheck]
   );
 
   return (
     <>
       <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
       <View style={styles.container}>
-        <FlatList data={filteredItems} renderItem={renderItem} keyExtractor={(item) => item.name} />
+        <FlatList
+          data={filteredItems}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.name}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={21}
+          removeClippedSubviews={true}
+        />
         <View style={{ height: 76 }} />
         <View style={styles.footer}>
           <Animated.View style={animatedButtonContainerStyle}>
@@ -191,7 +190,7 @@ const MealTimesFilter = () => {
             <TouchableOpacity
               style={styles.fullButton}
               onPress={() => {
-                saveItems(items); // Save state before navigating back
+                saveItems(items);
                 navigation.goBack();
               }}
             >
@@ -240,12 +239,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // itemContainer: {
-  //   backgroundColor: '#fff',
-  //   padding: 8,
-  //   borderRadius: 8,
-  //   marginBottom: 16,
-  // },
   header: {
     fontSize: 16,
     fontWeight: 'bold',
