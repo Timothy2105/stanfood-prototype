@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useMemo, useState, useRef, useImperativeHandle } from 'react';
 import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import StatusModal from '@/components/StatusModal';
@@ -24,6 +24,7 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ onToggle, on
   const [showStatus, setShowStatus] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [currentStatus, setCurrentStatus] = useState(initialStatus);
+  const router = useRouter();
 
   const renderBackdrop = useCallback(
     (props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />,
@@ -98,6 +99,13 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ onToggle, on
     [onStatusChange]
   );
 
+  const handleLocationPress = useCallback(() => {
+    bottomSheetRef.current?.dismiss();
+    setTimeout(() => {
+      router.push('/(modal)/location_search');
+    }, 175); // Timing for loocation router dismiss
+  }, [router]);
+
   const mainContentTranslate = slideAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, -400],
@@ -164,17 +172,15 @@ const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(({ onToggle, on
 
           <View style={styles.subheaderSection}>
             <Text style={styles.subheader}>Your Location</Text>
-            <Link href={'/'} asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <View style={[styles.item, pressed && styles.itemPressed]}>
-                    <Ionicons name="location-outline" size={22} color={Colors.primary} />
-                    <Text style={styles.itemText}>Current Location</Text>
-                    <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
-                  </View>
-                )}
-              </Pressable>
-            </Link>
+            <Pressable onPress={handleLocationPress}>
+              {({ pressed }) => (
+                <View style={[styles.item, pressed && styles.itemPressed]}>
+                  <Ionicons name="location-outline" size={22} color={Colors.primary} />
+                  <Text style={styles.itemText}>Current Location</Text>
+                  <Ionicons name="chevron-forward" size={22} color={Colors.primary} />
+                </View>
+              )}
+            </Pressable>
           </View>
 
           <View style={styles.subheaderSection}>
@@ -235,6 +241,7 @@ const styles = StyleSheet.create({
     height: 15,
     borderRadius: 7.5,
     marginRight: 8,
+    marginLeft: 4,
   },
   toggleSection: {
     flexDirection: 'row',

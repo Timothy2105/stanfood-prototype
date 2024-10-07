@@ -24,7 +24,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_hub"
+            name="(modal)/(filter)/filter_hub"
             options={{
               headerTitle: 'Filter',
               presentation: 'modal',
@@ -40,7 +40,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_dishes"
+            name="(modal)/(filter)/filter_dishes"
             options={{
               headerTitle: 'Dishes',
               presentation: 'modal',
@@ -56,7 +56,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_ingredients"
+            name="(modal)/(filter)/filter_ingredients"
             options={{
               headerTitle: 'Ingredients',
               presentation: 'modal',
@@ -72,7 +72,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_allergens"
+            name="(modal)/(filter)/filter_allergens"
             options={{
               headerTitle: 'Allergens',
               presentation: 'modal',
@@ -88,7 +88,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_meal_times"
+            name="(modal)/(filter)/filter_meal_times"
             options={{
               headerTitle: 'Meal Time',
               presentation: 'modal',
@@ -104,7 +104,7 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
-            name="(modal)/filter_locations"
+            name="(modal)/(filter)/filter_locations"
             options={{
               headerTitle: 'Locations',
               presentation: 'modal',
@@ -112,6 +112,18 @@ export default function RootLayoutNav() {
               headerStyle: {
                 backgroundColor: Colors.ultraLightGrey,
               },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(modal)/location_search"
+            options={{
+              headerTitle: 'Select location',
+              presentation: 'fullScreenModal',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="close-outline" size={28} color={Colors.primary} />

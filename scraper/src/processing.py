@@ -94,6 +94,7 @@ def replace_ingredient_words(ingredient):
         "Tortilla" : "Tortillas",
         "Onions Powder" : "Onion Powder",
         "Pineapple" : "Pineapples",
+        "Caulfilower" : "Cauliflower", 
     }
     
     for old, new in replacements.items():
