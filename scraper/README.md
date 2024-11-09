@@ -32,9 +32,7 @@ This is a web scraper for the Stanfood app prototype, designed to extract data f
      ```
    - Run the scraper and processing scripts using Python in the following order:
      ```bash
-     python3 scrape_menu.py
-     python3 processing.py
-     python3 create_filters.py
+     python3 run_pipeline.py
      ```
    - The scripts will execute and the data will be populated into its own directory within `scraper/src` and `stanfood_app/assets/data`.
 
