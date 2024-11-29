@@ -77,6 +77,5 @@ for date in dates_list:
             # Extract and save the menu information to CSV file
             save_info(driver, selected_date, selected_dining_hall, selected_meal_type)
 
-# Wait for user input before closing the browser
-input("Press enter to close the browser...")
 driver.quit()
+print("Menu scraping completed successfully")
