@@ -14,12 +14,12 @@ const Categories = () => {
       }}
     >
       {categories.map((category, index) => (
-        <View style={styles.categoryCard} key={index}>
-          <TouchableOpacity>
+        <TouchableOpacity>
+          <View style={styles.categoryCard} key={index}>
             <Image source={category.img} />
             <Text style={styles.categoryText}>{category.text}</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );

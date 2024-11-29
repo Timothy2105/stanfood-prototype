@@ -101,7 +101,7 @@ const LocationSearch = () => {
             borderRadius: 10,
           },
           textInputContainer: {
-            backgroundColor: '#fff',
+            backgroundColor: Colors.ultraLightGrey,
             paddingHorizontal: 8,
             paddingTop: 8,
             paddingBottom: 4,

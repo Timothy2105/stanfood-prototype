@@ -18,9 +18,6 @@ export default function RootLayoutNav() {
       <BottomSheetModalProvider>
         <Stack
           screenOptions={{
-            headerStyle: {
-              backgroundColor: Colors.ultraLightGrey,
-            },
             headerShadowVisible: false,
           }}
         >
@@ -28,6 +25,9 @@ export default function RootLayoutNav() {
             name="index"
             options={{
               header: () => <CustomHeader />,
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
             }}
           />
           <Stack.Screen
@@ -41,6 +41,9 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Filter',
               presentation: 'modal',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="close-outline" size={28} color={Colors.primary} />
@@ -54,6 +57,9 @@ export default function RootLayoutNav() {
               headerTitle: 'Dishes',
               presentation: 'modal',
               animation: 'slide_from_right',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="chevron-back" size={28} color={Colors.primary} />
@@ -67,6 +73,9 @@ export default function RootLayoutNav() {
               headerTitle: 'Ingredients',
               presentation: 'modal',
               animation: 'slide_from_right',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="chevron-back" size={28} color={Colors.primary} />
@@ -80,6 +89,9 @@ export default function RootLayoutNav() {
               headerTitle: 'Allergens',
               presentation: 'modal',
               animation: 'slide_from_right',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="chevron-back" size={28} color={Colors.primary} />
@@ -93,6 +105,9 @@ export default function RootLayoutNav() {
               headerTitle: 'Meal Time',
               presentation: 'modal',
               animation: 'slide_from_right',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="chevron-back" size={28} color={Colors.primary} />
@@ -106,6 +121,9 @@ export default function RootLayoutNav() {
               headerTitle: 'Locations',
               presentation: 'modal',
               animation: 'slide_from_right',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="chevron-back" size={28} color={Colors.primary} />
@@ -118,6 +136,9 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Select location',
               presentation: 'fullScreenModal',
+              headerStyle: {
+                backgroundColor: Colors.ultraLightGrey,
+              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="close-outline" size={28} color={Colors.primary} />
