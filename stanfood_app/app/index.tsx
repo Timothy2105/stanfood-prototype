@@ -1,40 +1,59 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Categories from '@/components/Categories';
-import Restaurants from '@/components/Restaurants';
-import Offers from '@/components/Offers';
-import DiningHallReviews from '@/components/DiningHallReviews';
+import React, { useRef } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ResizeMode } from 'expo-av';
+import { Video as ExpoVideo } from 'expo-av';
 import Colors from '@/constants/Colors';
 
-const Page = () => {
+const LoadingScreen = () => {
+  const router = useRouter();
+  const videoRef = useRef(null);
+
+  const handlePlaybackStatusUpdate = (status) => {
+    if (status.didJustFinish) {
+      router.replace('./share_location');
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <Categories />
-        <Text style={styles.header}>Top Picks Near Campus</Text>
-        <Restaurants />
-        <Text style={styles.header}>Free Food!</Text>
-        <Offers />
-        <Text style={styles.header}>Dining Hall Reviews</Text>
-        <DiningHallReviews />
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <View style={styles.videoContainer}>
+        <ExpoVideo
+          ref={videoRef}
+          source={require('@/assets/animations/loading.mp4')}
+          style={styles.video}
+          resizeMode={ResizeMode.CONTAIN}
+          shouldPlay={true}
+          isLooping={false}
+          rate={0.5}
+          onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+        />
+      </View>
+      <Text style={styles.text}>Loading...</Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    top: 50,
-    backgroundColor: Colors.lightGrey,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.ultraLightGrey,
   },
-  header: {
+  videoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  video: {
+    width: 300,
+    height: 300,
+  },
+  text: {
+    marginTop: 20,
     fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
-    paddingHorizontal: 20,
+    color: '#333',
   },
 });
 
-export default Page;
+export default LoadingScreen;

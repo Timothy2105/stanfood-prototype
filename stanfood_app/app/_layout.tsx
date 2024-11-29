@@ -24,18 +24,27 @@ export default function RootLayoutNav() {
           <Stack.Screen
             name="index"
             options={{
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="home"
+            options={{
               header: () => <CustomHeader />,
               headerStyle: {
                 backgroundColor: Colors.ultraLightGrey,
               },
             }}
           />
+
           <Stack.Screen
-            name="(modal)"
+            name="share_location"
             options={{
               headerShown: false,
             }}
           />
+
           <Stack.Screen
             name="(modal)/(filter)/filter_hub"
             options={{
