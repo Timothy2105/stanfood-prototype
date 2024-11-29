@@ -16,7 +16,14 @@ export default function RootLayoutNav() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
-        <Stack>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: Colors.ultraLightGrey,
+            },
+            headerShadowVisible: false,
+          }}
+        >
           <Stack.Screen
             name="index"
             options={{
@@ -24,14 +31,16 @@ export default function RootLayoutNav() {
             }}
           />
           <Stack.Screen
+            name="(modal)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="(modal)/(filter)/filter_hub"
             options={{
               headerTitle: 'Filter',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Ionicons name="close-outline" size={28} color={Colors.primary} />
@@ -44,13 +53,10 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Dishes',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
+              animation: 'slide_from_right',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                  <Ionicons name="chevron-back" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),
             }}
@@ -60,13 +66,10 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Ingredients',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
+              animation: 'slide_from_right',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                  <Ionicons name="chevron-back" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),
             }}
@@ -76,13 +79,10 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Allergens',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
+              animation: 'slide_from_right',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                  <Ionicons name="chevron-back" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),
             }}
@@ -92,13 +92,10 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Meal Time',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
+              animation: 'slide_from_right',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                  <Ionicons name="chevron-back" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),
             }}
@@ -108,13 +105,10 @@ export default function RootLayoutNav() {
             options={{
               headerTitle: 'Locations',
               presentation: 'modal',
-              headerShadowVisible: false,
-              headerStyle: {
-                backgroundColor: Colors.ultraLightGrey,
-              },
+              animation: 'slide_from_right',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="close-outline" size={28} color={Colors.primary} />
+                  <Ionicons name="chevron-back" size={28} color={Colors.primary} />
                 </TouchableOpacity>
               ),
             }}

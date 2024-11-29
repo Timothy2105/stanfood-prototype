@@ -8,8 +8,11 @@ __pycache__/
 *.exe
 chromedriver
 
-# Saved Data
+# All Data
 data/
+
+# All Assets
+assets/
 
 # Virtual Environments
 venv/
