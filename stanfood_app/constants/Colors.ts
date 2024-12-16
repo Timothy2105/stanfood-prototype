@@ -21,6 +21,7 @@ export default {
   mediumLightGrey: '#F5F0F8',
   ultraLightGrey: '#FBFAFE',
   grey: '#EEE9F0',
+  darkGrey: '#C7C2C9',
   medium: '#9F9AA1',
   mediumDark: '#424242',
   green: '#3BA55C',

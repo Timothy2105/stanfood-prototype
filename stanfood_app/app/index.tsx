@@ -20,16 +20,14 @@ const LoadingScreen = () => {
       <View style={styles.videoContainer}>
         <ExpoVideo
           ref={videoRef}
-          source={require('@/assets/animations/loading.mp4')}
+          source={require('@/assets/animations/stanfood_logo_animation.mp4')}
           style={styles.video}
           resizeMode={ResizeMode.CONTAIN}
           shouldPlay={true}
           isLooping={false}
-          rate={0.5}
           onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
         />
       </View>
-      <Text style={styles.text}>Loading...</Text>
     </View>
   );
 };
