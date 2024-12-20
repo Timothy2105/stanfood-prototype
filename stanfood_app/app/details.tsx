@@ -1,4 +1,14 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList, ListRenderItem } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Animated,
+  SectionList,
+  ListRenderItem,
+  ScrollView,
+} from 'react-native';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import Colors from '@/constants/Colors';
@@ -8,10 +18,12 @@ import { Ionicons } from '@expo/vector-icons';
 
 const SCROLL_THRESHOLD = 152;
 const TEXT_OFFSET = 30;
+const SEGMENT_OFFSET = 100;
 const ANIMATION_DURATION = 300;
 
 const Details = () => {
   const navigation = useNavigation();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const DATA = restaurant.food.map((item, index) => ({
     title: item.category,
@@ -22,8 +34,10 @@ const Details = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const headerAnimation = useRef(new Animated.Value(0)).current;
   const textAnimation = useRef(new Animated.Value(0)).current;
+  const segmentAnimation = useRef(new Animated.Value(0)).current;
   const [headerVisible, setHeaderVisible] = useState(false);
   const [textVisible, setTextVisible] = useState(false);
+  const [segmentVisible, setSegmentVisible] = useState(false);
 
   const animateHeader = (show) => {
     if (show !== headerVisible) {
@@ -40,6 +54,17 @@ const Details = () => {
     if (show !== textVisible) {
       setTextVisible(show);
       Animated.timing(textAnimation, {
+        toValue: show ? 1 : 0,
+        duration: ANIMATION_DURATION,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const animateSegment = (show) => {
+    if (show !== segmentVisible) {
+      setSegmentVisible(show);
+      Animated.timing(segmentAnimation, {
         toValue: show ? 1 : 0,
         duration: ANIMATION_DURATION,
         useNativeDriver: true,
@@ -79,12 +104,17 @@ const Details = () => {
       const offsetY = event.nativeEvent.contentOffset.y;
       const isPassedHeaderThreshold = offsetY >= SCROLL_THRESHOLD;
       const isPassedTextThreshold = offsetY >= SCROLL_THRESHOLD + TEXT_OFFSET;
+      const isPassedSegmentThreshold = offsetY >= SCROLL_THRESHOLD + TEXT_OFFSET + SEGMENT_OFFSET;
 
       animateHeader(isPassedHeaderThreshold);
-
       animateText(isPassedTextThreshold);
+      animateSegment(isPassedSegmentThreshold);
     },
   });
+
+  const selectCategory = (index: number) => {
+    setActiveIndex(index);
+  };
 
   const renderItem: ListRenderItem<any> = ({ item }) => (
     <Link href={'/'} asChild>
@@ -100,33 +130,49 @@ const Details = () => {
   );
 
   return (
-    <ParallaxScrollView
-      backgroundColor={'#fff'}
-      style={{ flex: 1 }}
-      parallaxHeaderHeight={250}
-      renderBackground={() => <Image source={restaurant.img} style={styles.backgroundImage} />}
-      onScroll={onScroll}
-      scrollEventThrottle={16}
-    >
-      <View style={styles.detailsContainer}>
-        <Text style={styles.restaurantName}>{restaurant.name}</Text>
-        <Text style={styles.restaurantDescription}>
-          {restaurant.delivery} ·{' '}
-          {restaurant.tags.map((tag, index) => `${tag}${index < restaurant.tags.length - 1 ? ' · ' : ''}`)}
-        </Text>
-        <Text style={styles.restaurantDescription}>{restaurant.about}</Text>
-        <SectionList
-          contentContainerStyle={{ paddingBottom: 50 }}
-          keyExtractor={(item, index) => `${item.id + index}`}
-          scrollEnabled={false}
-          sections={DATA}
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: Colors.grey }} />}
-          SectionSeparatorComponent={() => <View style={{ height: 1, backgroundColor: Colors.grey }} />}
-          renderSectionHeader={({ section: { title, index } }) => <Text style={styles.sectionHeader}>{title}</Text>}
-        />
-      </View>
-    </ParallaxScrollView>
+    <>
+      <ParallaxScrollView
+        backgroundColor={'#fff'}
+        style={{ flex: 1 }}
+        parallaxHeaderHeight={250}
+        renderBackground={() => <Image source={restaurant.img} style={styles.backgroundImage} />}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+      >
+        <View style={styles.detailsContainer}>
+          <Text style={styles.restaurantName}>{restaurant.name}</Text>
+          <Text style={styles.restaurantTags}>
+            {restaurant.delivery} ·{' '}
+            {restaurant.tags.map((tag, index) => `${tag}${index < restaurant.tags.length - 1 ? ' · ' : ''}`)}
+          </Text>
+          <Text style={styles.restaurantDescription}>{restaurant.about}</Text>
+          <SectionList
+            contentContainerStyle={{ paddingBottom: 50 }}
+            keyExtractor={(item, index) => `${item.id + index}`}
+            scrollEnabled={false}
+            sections={DATA}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: Colors.grey }} />}
+            SectionSeparatorComponent={() => <View style={{ height: 1, backgroundColor: Colors.grey }} />}
+            renderSectionHeader={({ section: { title, index } }) => <Text style={styles.sectionHeader}>{title}</Text>}
+          />
+        </View>
+      </ParallaxScrollView>
+
+      <Animated.View style={[styles.stickySegments, { opacity: segmentAnimation }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentScrollView}>
+          {restaurant.food.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={activeIndex === index ? styles.segmentButtonActive : styles.segmentButton}
+              onPress={() => selectCategory(index)}
+            >
+              <Text style={activeIndex === index ? styles.segmentTextActive : styles.segmentText}>{item.category}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
+    </>
   );
 };
 
@@ -165,14 +211,21 @@ const styles = StyleSheet.create({
     fontSize: 30,
     marginHorizontal: 16,
     marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 4,
     fontWeight: 'bold',
   },
-  restaurantDescription: {
+  restaurantTags: {
     fontSize: 16,
     marginHorizontal: 16,
     marginVertical: 4,
-    lineHeight: 22,
+    lineHeight: 25,
+    color: Colors.dark,
+  },
+  restaurantDescription: {
+    fontSize: 14,
+    marginHorizontal: 16,
+    marginTop: 4,
+    lineHeight: 18,
     color: Colors.mediumDark,
   },
   sectionHeader: {
@@ -204,6 +257,47 @@ const styles = StyleSheet.create({
     color: Colors.mediumDark,
     marginRight: 25,
     paddingVertical: 4,
+  },
+  stickySegments: {
+    position: 'absolute',
+    height: 45,
+    left: 0,
+    right: 0,
+    top: 98,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  segmentButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderRadius: 50,
+  },
+  segmentButtonActive: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderRadius: 50,
+  },
+  segmentText: {
+    color: Colors.primary,
+    fontSize: 16,
+  },
+  segmentTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  segmentScrollView: {
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    gap: 20,
   },
 });
 

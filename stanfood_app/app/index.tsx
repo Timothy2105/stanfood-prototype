@@ -25,6 +25,7 @@ const LoadingScreen = () => {
           resizeMode={ResizeMode.CONTAIN}
           shouldPlay={true}
           isLooping={false}
+          rate={1.15}
           onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
         />
       </View>
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   video: {
-    width: 300,
+    width: 370,
     height: 300,
   },
   text: {
